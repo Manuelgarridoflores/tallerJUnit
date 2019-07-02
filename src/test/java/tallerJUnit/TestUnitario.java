@@ -1,9 +1,12 @@
 package tallerJUnit;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 import static org.junit.Assert.assertEquals;
@@ -17,9 +20,17 @@ import com.everis.bootcamp.tallerjunit.Articulo;
 import com.everis.bootcamp.tallerjunit.CarritoCompraService;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//@TestMethodOrder(TestUnitario.class)
 public class TestUnitario {
 	CarritoCompraService carritocompraservice;
+	static CarritoCompraService carritocompraservice02;
 	Articulo articulo;
+	private static StringBuilder output = new StringBuilder("");
+	
+	@BeforeClass
+	public static void imprimirPorPantalla02() {
+		carritocompraservice02 = new CarritoCompraService();
+	}
 	
 	@Before
 	public void imprimirPorPantalla() {
@@ -28,6 +39,7 @@ public class TestUnitario {
 	}
 	
 	@Test
+	//@Order(1)
 	public void Test() {
 		System.out.println("Test Realizado correctamente.");
 	}
@@ -37,7 +49,6 @@ public class TestUnitario {
 		double precio = 12.5;
 		
 		carritocompraservice.addArticulo(new Articulo("articulo",12.0));
-		
 		assertFalse("La lista esta vacia",carritocompraservice.getArticulos().isEmpty());
 	}
 	
