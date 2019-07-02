@@ -1,22 +1,21 @@
 package tallerJUnit;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
+import org.mockito.Mockito;
 
 import com.everis.bootcamp.tallerjunit.Articulo;
+import com.everis.bootcamp.tallerjunit.BBDD;
 import com.everis.bootcamp.tallerjunit.CarritoCompraService;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -25,7 +24,7 @@ public class TestUnitario {
 	CarritoCompraService carritocompraservice;
 	static CarritoCompraService carritocompraservice02;
 	Articulo articulo;
-	private static StringBuilder output = new StringBuilder("");
+	BBDD bbdd;
 	
 	@BeforeClass
 	public static void imprimirPorPantalla02() {
@@ -33,9 +32,13 @@ public class TestUnitario {
 	}
 	
 	@Before
-	public void imprimirPorPantalla() {
+	public void setUp() {
 		carritocompraservice = new CarritoCompraService();
 		articulo = new Articulo();
+		
+		System.out.println("Inicializamos el servicio");
+		bbdd = Mockito.mock(BBDD.class);
+		carritocompraservice.setBbddService(bbdd);
 	}
 	
 	@Test
@@ -46,8 +49,6 @@ public class TestUnitario {
 	
 	@Test
 	public void Test01() {
-		double precio = 12.5;
-		
 		carritocompraservice.addArticulo(new Articulo("articulo",12.0));
 		assertFalse("La lista esta vacia",carritocompraservice.getArticulos().isEmpty());
 	}
@@ -63,7 +64,7 @@ public class TestUnitario {
 		carritocompraservice.limpiarCesta();
 		assertTrue("La esta cesta vacia",carritocompraservice.getArticulos().isEmpty());
 	}
-
+	
 	@Test
 	public void Test03() {
 		double resultado = 0;
@@ -96,5 +97,63 @@ public class TestUnitario {
 	@Test(expected=IOException.class)
 	public void Test05() throws IOException {
 		carritocompraservice.limpiarCesta02();
+	}
+	
+	@Test
+	public void Test06() {
+		Mockito.when(bbdd.findArticuloById(1)).thenReturn(new Articulo("prueba01", 50d));
+		
+		Double desc = carritocompraservice.aplicarDescuento(1, 10d);
+		assertEquals(45d, desc,0);
+	}
+	
+	@Test
+	public void Test07() {
+		Mockito.when(bbdd.findArticuloById(1)).thenReturn(null);
+		
+		Double desc = carritocompraservice.aplicarDescuento(1, 10d);
+		assertNull(desc);
+	}
+	
+	@Test(expected=Exception.class)
+	public void Test08() {
+		Mockito.when(bbdd.findArticuloById(0)).thenThrow(new Exception());
+		Double result = carritocompraservice.aplicarDescuento(1, 12.5);
+		System.out.println("Precio Final: " + result);
+	}
+	
+	@Test
+	public void Test09() {
+		Mockito.when(bbdd.findArticuloById(1)).thenReturn(new Articulo("PRUEBA02", 10.0)); //Añado un nuevo articulo a la BBDD.
+		Double result = carritocompraservice.aplicarDescuento(1, 12.0); //Creo una variable con el descuento aplicado.
+		
+		assertEquals(result, new Double(8.8)); //Comparo y las variables.
+		Mockito.verify(bbdd, Mockito.times(1)).findArticuloById(1); //Verifico que todo haya ido correctamente.
+		
+		System.out.println("El precio definitivo del articulo tras el descuento: " + result); //Imprimo por pantalla el precio final.
+	}
+	
+	@Test
+	public void Test10(){
+		String descripcion = "";
+		int id;
+		
+		//Insertar datos en la BBDD y en la lista de la compra.
+		carritocompraservice.addArticulo(new Articulo("articulo04",12.0));
+		bbdd.insertArticulo(new Articulo("articulo04",12.0));
+		
+		//Listado del carrito de la compra.
+		for(Articulo a: carritocompraservice.getArticulos()) {
+			descripcion = a.getDescripcion();
+			id = a.getId().intValue();
+			
+			articulo = bbdd.findArticuloById(id);
+			
+			if(id == articulo.getId()) {
+				System.out.println("Articulo insertado correctamente en la lista compra: " + descripcion);
+				System.out.println("Articulo insertado correctamente en la BBDD: " + descripcion);
+			}
+			
+		}
 	}
 }
