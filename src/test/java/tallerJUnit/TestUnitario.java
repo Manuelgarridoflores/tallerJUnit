@@ -2,7 +2,9 @@ package tallerJUnit;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import com.everis.bootcamp.tallerjunit.Articulo;
 import com.everis.bootcamp.tallerjunit.CarritoCompraService;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestUnitario {
 	CarritoCompraService carritocompraservice;
 	Articulo articulo;

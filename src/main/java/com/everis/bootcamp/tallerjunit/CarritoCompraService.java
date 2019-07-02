@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.junit.Test;
 
-public class CarritoCompraService {
+import junit.framework.TestCase;
+
+public class CarritoCompraService{
 	
 	List<Articulo> articulos = new ArrayList<Articulo>();
 	
